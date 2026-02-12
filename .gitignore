@@ -1,7 +1,7 @@
 # Основные файлы настроек + БД
 .env
 
-date/
+data/
 *.sqlite3
 
 # Python 
