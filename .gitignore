@@ -1,0 +1,23 @@
+# Основные файлы настроек + БД
+.env
+
+date/
+*.sqlite3
+
+# Python 
+__pycahe_/
+*.py[cod]
+*$py.class
+venv/
+env/
+
+# Django медиа и статика
+app/media/
+app/static/
+!app/static/.gitkeep
+
+
+# Остатки IDE
+.vscode/
+.idea/
+.DS_Store
