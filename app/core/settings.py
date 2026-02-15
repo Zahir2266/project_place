@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -99,10 +100,23 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
+
+# Читаем настройки из переменных окружения
+DB_NAME = os.environ.get("POSTGRES_DB", "django_db")
+DB_USER = os.environ.get("POSTGRES_USER", "django_user")
+DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "django_pass")
+DB_HOST = os.environ.get("DB_HOST", "db")  # 'db' - это имя сервиса в docker-compose
+DB_PORT = os.environ.get("DB_PORT", "5432")
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
     }
 }
 
@@ -143,7 +157,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -152,3 +165,25 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# CELERY
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    # Проверять погоду каждые 30 минут
+    'update-weather-every-30-mins': {
+        'task': 'events.tasks.update_weather_task',
+        'schedule': crontab(minute='*/30'),
+    },
+    # Проверять автопубликацию каждую минуту
+    'check-pub-every-minute': {
+        'task': 'events.tasks.check_for_publication',
+        'schedule': crontab(minute='*'),
+    },
+}

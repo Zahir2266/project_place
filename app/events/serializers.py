@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field, OpenApiTypes
 from .models import Location, Event, EventImage
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -16,8 +17,10 @@ class EventSerializer(serializers.ModelSerializer):
     images = EventImageSerializer(many=True, read_only=True)
 
     uploaded_images = serializers.ListField(
-        child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
-        write_only=True, required=False
+        child=serializers.ImageField(allow_empty_file=False, use_url=False),
+        write_only=True,
+        required=False,
+        label="Загрузка изображений"
     )
 
     location_details = LocationSerializer(source='location', read_only=True)
