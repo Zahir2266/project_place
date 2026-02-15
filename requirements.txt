@@ -2,6 +2,7 @@ django==4.2.0
 djangorestframework==3.14.0
 django-filter==23.2
 django-environ==0.10.0
+django-extensions ==4.1  
 psycopg2-binary==2.9.6
 pillow==9.5.0
 drf-spectacular==0.26.2

@@ -8,8 +8,18 @@ from PIL import Image
 
 class Location(models.Model):
     name = models.CharField("Название места", max_length=255)
-    lat = models.DecimalField("Широта", max_digits=9, decimal_places=6)
-    lon = models.DecimalField("Долгота", max_digits=9, decimal_places=6)
+    lat = models.DecimalField(
+        "Широта", 
+        max_digits=9, 
+        decimal_places=6,
+        help_text="Географическая широта в десятичном формате"    
+    )
+    lon = models.DecimalField(
+        "Долгота",
+        max_digits=9,
+        decimal_places=6,
+        help_text="Географическая широта/долгота в десятичном формате"        
+        )
 
     def __str__(self):
         return self.name
@@ -32,11 +42,18 @@ class Event(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='events')
     
     rating = models.PositiveIntegerField(
-        "Рейтинг", 
+        "Рейтинг",
+        help_text="Оценка мероприятия от 0 до 25", 
         validators=[MinValueValidator(0), MaxValueValidator(25)],
         default=0
     )
-    status = models.CharField("Статус", max_length=10, choices=STATUS_CHOICES, default='draft')
+    status = models.CharField(
+        "Статус", 
+        max_length=10, 
+        choices=STATUS_CHOICES, 
+        default='draft',
+        help_text="Опубликованные мероприятия видны всем, черновики — только админам"
+    )
 
     def __str__(self):
         return self.title
