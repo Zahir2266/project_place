@@ -1,7 +1,9 @@
 from django.shortcuts import render
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, filters as drf_filters
 from .models import Location, Event
 from .serializers import LocationSerializer, EventSerializer
+from .filters import EventFilter
+
 
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
@@ -14,6 +16,14 @@ class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
 
+    filterset_class = EventFilter
+    # Поиск по названию или месту
+    search_fields = ['title', 'location__name']  
+    # Сортировка
+    ordering_fields = ['title', 'start_date', 'end_date'] 
+     # Сортировка по умолчанию
+    ordering = ['title']
+    
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAdminUser()]
