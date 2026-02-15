@@ -39,23 +39,30 @@ def update_weather_task():
     
     for event in events:
         loc = event.location
-        url = f"https://api.open-meteo.com/v1/forecast?latitude={loc.lat}&longitude={loc.lon}&current_weather=true&hourly=relativehumidity_2m,surface_pressure"
+        url = (f"https://api.open-meteo.com/v1/forecast?"
+               f"latitude={loc.lat}&longitude={loc.lon}&current_weather=true"
+               f"&hourly=surface_pressure,relativehumidity_2m")
         
         try:
             response = requests.get(url, timeout=10)
             data = response.json()
             current = data['current_weather']
             
-            # Сохраняем данные
+            # Конвертация данных
+            pressure_hpa = data['hourly']['surface_pressure'][0]
+            pressure_mmhg = round(pressure_hpa * 0.75006, 1)
+            
+            humidity = data['hourly']['relativehumidity_2m'][0]
+            
             WeatherData.objects.update_or_create(
                 event=event,
                 defaults={
                     'temperature': current['temperature'],
                     'wind_speed': current['windspeed'],
                     'wind_direction': str(current['winddirection']),
-                    'humidity': 50.0,
-                    'pressure': 760.0,
+                    'humidity': humidity,
+                    'pressure': pressure_mmhg,
                 }
             )
         except Exception as e:
-            print(f"Error fetching weather for {event.title}: {e}")
+            print(f"Weather error for {event.title}: {e}")

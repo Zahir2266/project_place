@@ -1,6 +1,14 @@
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field, OpenApiTypes
-from .models import Location, Event, EventImage
+from .models import Location, Event, EventImage, WeatherData
+
+class WeatherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WeatherData
+        fields = [
+            'temperature', 'humidity', 'pressure', 
+            'wind_direction', 'wind_speed', 'created_at'
+        ]
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,6 +23,7 @@ class EventImageSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
 
     images = EventImageSerializer(many=True, read_only=True)
+    weather = WeatherSerializer(read_only=True) 
 
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
@@ -30,9 +39,10 @@ class EventSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'images', 'uploaded_images', 
             'pub_date', 'start_date', 'end_date', 'author', 
-            'location', 'location_details', 'rating', 'status'
+            'location', 'location_details', 'weather',
+            'rating', 'status'
         ]
-        read_only_fields = ['author', 'pub_date']
+        read_only_fields = ['author', 'pub_date', 'weather']
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])
